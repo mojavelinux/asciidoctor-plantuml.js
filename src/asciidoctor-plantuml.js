@@ -27,7 +27,7 @@ function plantumlBlock () {
       const imageUrl = createImageSrc(serverUrl, shouldFetch, target, imagesOutDir, diagramText)
       const blockAttrs = {role: roles ? `${roles} plantuml` : 'plantuml', target: imageUrl, alt: target || 'diagram'}
       if (blockId) blockAttrs['id'] = blockId
-      return this.createImageBlock(parent, blockAttrs, blockAttrs)
+      return this.createImageBlock(parent, blockAttrs)
     } else {
       console.warn('Skipping plantuml block. PlantUML Server URL not defined in :plantuml-server-url: attribute.')
       Opal.hash_put(attrs, 'role', roles ? `${roles} plantuml-error` : 'plantuml-error')
