@@ -10,12 +10,19 @@ function createImageSrc (serverUrl, shouldFetch, target, outdir, text) {
 }
 
 function plantumlBlock () {
-  this.named('plantuml')
   this.onContext('listing')
   this.positionalAttributes('target')
   this.process((parent, reader, attrs) => {
     const doc = parent.getDocument()
-    const diagramText = reader.getLines().join('\n')
+    let diagramText = reader.getString()
+    if (!/^@start([a-z]+)\n[\s\S]*\n@end\1$/.test(diagramText)) {
+      const diagramType = Opal.hash_get(attrs, 1)
+      if (diagramType === 'plantuml') {
+        diagramText = '@startuml\n' + diagramText + '\n@enduml'
+      } else if (diagramType === 'ditaa') {
+        diagramText = '@startditaa\n' + diagramText + '\n@endditaa'
+      }
+    }
     const serverUrl = doc.getAttribute('plantuml-server-url')
     let roles = Opal.hash_get(attrs, 'role')
     const blockId = Opal.hash_get(attrs, 'id')
@@ -39,10 +46,12 @@ function plantumlBlock () {
 module.exports.register = function register (registry) {
   if (typeof registry.register === 'function') {
     registry.register(function () {
-      this.block(plantumlBlock)
+      this.block('plantuml', plantumlBlock)
+      this.block('ditaa', plantumlBlock)
     })
   } else if (typeof registry.block === 'function') {
     registry.block('plantuml', plantumlBlock)
+    registry.block('ditaa', plantumlBlock)
   }
   return registry
 }
